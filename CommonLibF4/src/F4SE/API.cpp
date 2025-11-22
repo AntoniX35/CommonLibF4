@@ -3,6 +3,7 @@
 #include "F4SE/Interfaces.h"
 #include "F4SE/Logger.h"
 #include "F4SE/Trampoline.h"
+#include "REL/Formatters.h"
 
 namespace F4SE
 {
