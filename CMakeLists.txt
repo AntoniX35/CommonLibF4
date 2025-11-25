@@ -22,12 +22,4 @@ include(CTest)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-conditionally_add_subdirectory(AddressLibDecoder)
-conditionally_add_subdirectory(AddressLibGen)
 conditionally_add_subdirectory(CommonLibF4)
-conditionally_add_subdirectory(ExampleProject)
-conditionally_add_subdirectory("F4SEStub/runtime" f4se_runtime)
-conditionally_add_subdirectory("F4SEStub/loader" f4se_loader)
-conditionally_add_subdirectory("F4SEStub/steam_loader" f4se_steam_loader)
-conditionally_add_subdirectory(RTTIDump)
-conditionally_add_subdirectory(Tests)

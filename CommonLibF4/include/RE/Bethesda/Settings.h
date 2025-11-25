@@ -250,6 +250,9 @@ namespace RE
 		// members
 		SETTING_VALUE _value;  // 08
 		const char* _key;      // 10
+
+		template <typename T>
+    	friend T* GetINISettingAddr(const char* a_name);
 	};
 	static_assert(sizeof(Setting) == 0x18);
 
@@ -390,4 +393,26 @@ namespace RE
 		}
 	};
 	static_assert(sizeof(INIPrefSettingCollection) == 0x128);
+
+	inline Setting* GetINISetting(std::string_view a_name)
+	{
+		Setting* setting = nullptr;
+
+		auto iniPrefs = INIPrefSettingCollection::GetSingleton();
+		setting = iniPrefs ? iniPrefs->GetSetting(a_name) : nullptr;
+		if (!setting) {
+			auto ini = INISettingCollection::GetSingleton();
+			setting = ini ? ini->GetSetting(a_name) : nullptr;
+		}
+		return setting;
+	}
+
+	template <typename T>
+	inline T* GetINISettingAddr(const char* a_name)
+	{
+	    if (auto setting = GetINISetting(a_name)) {
+	        return reinterpret_cast<T*>(&setting->_value);
+	    }
+	    return nullptr;
+	}
 }
