@@ -113,7 +113,7 @@
       "hidden": true,
       "cacheVariables": {
         "ENABLE_FALLOUT_NG": "OFF",
-        "ENABLE_FALLOUT_F4": "OFF"
+        "ENABLE_FALLOUT_OG": "OFF"
       }
     },
     {
@@ -135,7 +135,7 @@
       "name": "runtimes-ng",
       "hidden": true,
       "cacheVariables": {
-        "ENABLE_FALLOUT_F4": "OFF",
+        "ENABLE_FALLOUT_OG": "OFF",
         "ENABLE_FALLOUT_VR": "OFF"
       }
     },
@@ -150,7 +150,7 @@
       "name": "runtimes-current",
       "hidden": true,
       "cacheVariables": {
-        "ENABLE_FALLOUT_F4": "OFF"
+        "ENABLE_FALLOUT_OG": "OFF"
       }
     },
     {

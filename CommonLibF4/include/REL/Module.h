@@ -22,19 +22,29 @@ namespace REL
 			Unknown = 0,
 
 			/**
-			 * The FALLOUT runtime is a post-Next Generation Update FALLOUT release (version 1.10.980 and later).
+			 * The FALLOUT runtime is a pre-Next Generation Update release(version 1.10.163 and earlier).
 			 */
-			NG = 1 << 0,
+			OG = 1 << 1,
 
 			/**
-			 * The FALLOUT runtime is a pre-Next Generation Update FALLOUT release (version 1.10.163 and prior).
+			 * Backwards-compatible alias: F4 is the same as OG.
 			 */
-			F4 = 1 << 1,
+			F4 = OG,
 
 			/**
-			 * The FALLOUT runtime is FALLOUT VR.
+			 * The FALLOUT runtime is a Next-Generation Update release (versions 1.10.980 through 1.10.984).
 			 */
-			VR = 1 << 2
+			NG = 1 << 2,
+
+			/**
+			 * The FALLOUT runtime is Anniversary Update release (version 1.11.137 and prior).
+			 */
+			AE = 1 << 3,
+
+			/**
+			 * The FALLOUT runtime is Fallout 4 VR.
+			 */
+			VR = 1 << 4
 		};
 		[[nodiscard]] static Module& get()
 		{
@@ -61,11 +71,15 @@ namespace REL
          */
 		[[nodiscard]] static FALLOUT_REL Runtime GetRuntime() noexcept
 		{
-#if (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR))
-			return Runtime::F4;
-#elif (!defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR))
+			// If exactly one build-time ENABLE_FALLOUT_* macro is defined, use it as the runtime.
+			// Otherwise fall back to the detected runtime at runtime.
+#if defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_VR)
+			return Runtime::OG;
+#elif defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_VR)
 			return Runtime::NG;
-#elif (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4))
+#elif defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)
+			return Runtime::AE;
+#elif defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_AE)
 			return Runtime::VR;
 #else
 			return get()._runtime;
@@ -85,7 +99,8 @@ namespace REL
          */
 		[[nodiscard]] static FALLOUT_REL bool IsF4() noexcept
 		{
-			return GetRuntime() == Runtime::F4;
+			// "F4" (classic Fallout 4 non-VR) is treated as OG
+			return GetRuntime() == Runtime::OG;
 		}
 
 		/**
@@ -95,7 +110,7 @@ namespace REL
 		{
 #if !defined(ENABLE_FALLOUT_VR)
 			return false;
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
+#elif !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG)
 			return true;
 #else
 			return GetRuntime() == Runtime::VR;

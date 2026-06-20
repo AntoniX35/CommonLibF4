@@ -250,6 +250,9 @@ namespace RE
 		// members
 		SETTING_VALUE _value;  // 08
 		const char*   _key;    // 10
+
+		template <typename T>
+    	friend T* GetINISettingAddr(const char* a_name);
 	};
 	static_assert(sizeof(Setting) == 0x18);
 
@@ -415,4 +418,43 @@ namespace RE
 		}
 		return setting;
 	}
+    template <typename T>
+    inline T* GetINISettingAddr(const char* a_name)
+    {
+        Setting* setting = GetINISetting(a_name);
+        if (!setting) {
+            return nullptr;
+        }
+        if constexpr (std::is_same_v<T, float>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kFloat) return nullptr;
+            return &setting->_value.f;
+        }
+        else if constexpr (std::is_same_v<T, std::int32_t>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kInt) return nullptr;
+            return &setting->_value.i;
+        }
+        else if constexpr (std::is_same_v<T, bool>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kBinary) return nullptr;
+            return &setting->_value.b;
+        }
+        else if constexpr (std::is_same_v<T, char>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kChar) return nullptr;
+            return &setting->_value.c;
+        }
+        else if constexpr (std::is_same_v<T, std::uint8_t>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kUChar) return nullptr;
+            return &setting->_value.h;
+        }
+        else if constexpr (std::is_same_v<T, std::uint32_t>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kUInt) return nullptr;
+            return &setting->_value.u;
+        }
+        else if constexpr (std::is_same_v<T, std::string_view>) {
+            if (setting->GetType() != Setting::SETTING_TYPE::kString) return nullptr;
+            return reinterpret_cast<std::string_view*>(&setting->_value.s);
+        }
+        else {
+            static_assert(sizeof(T) == 0, "GetINISettingAddr: unsupported type");
+        }
+    }
 }

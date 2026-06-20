@@ -47,13 +47,28 @@ namespace REL
 		const auto version = GetFileVersion(_filename);
 		if (version) {
 			_version = *version;
-			switch (_version[1]) {
-			case 2:  // search for 2 in 1.2.72.0
+			// First, check for explicit VR marker in minor version (e.g., 1.2.x)
+			if (_version[1] == 2) {
 				_runtime = Runtime::VR;
-				break;
-			default:
-				_runtime = (_version[2] > 163) ? Runtime::NG : Runtime::F4;
+				return;
 			}
+
+			// Use explicit range checks to determine runtime reliably
+			// OG releases: up to 1.10.163
+			// NG releases: 1.10.980 - 1.10.984
+			// AE releases: 1.11.0 - 1.11.137
+			// Post-AE: >= 1.11.138 treated as NG
+			Version v = _version;
+			if (v >= Version(1, 10, 980) && v <= Version(1, 10, 984)) {
+				_runtime = Runtime::NG;
+			} else if (v >= Version(1, 11, 0) && v <= Version(1, 11, 137)) {
+				_runtime = Runtime::AE;
+			} else if (v >= Version(1, 11, 138)) {
+				_runtime = Runtime::NG;
+			} else {
+				_runtime = Runtime::OG;
+			}
+
 			return;
 		}
 		stl::report_and_error(

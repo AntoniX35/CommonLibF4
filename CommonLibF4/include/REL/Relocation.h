@@ -454,19 +454,31 @@ namespace REL
      * </p>
      *
      * @tparam T the type of value to return.
-     * @param a_f4AndVR the value to use for F4 and VR.
+     * @param a_ogAndVR the value to use for F4 and VR.
 	 * @param a_ng the value to use for NG.
-     * @return Either <code>a_f4AndVR</code> if the current runtime is FALLOUT SE or VR, or <code>a_ae</code> if the runtime is AE.
+     * @return Either <code>a_ogAndVR</code> if the current runtime is FALLOUT SE or VR, or <code>a_ae</code> if the runtime is AE.
      */
 	template <class T>
-	[[nodiscard]] FALLOUT_ADDR T Relocate([[maybe_unused]] T&& a_f4AndVR, [[maybe_unused]] T&& a_ng) noexcept
+	[[nodiscard]] FALLOUT_ADDR T Relocate(
+		[[maybe_unused]] T&& a_ogAndVR,
+		[[maybe_unused]] T&& a_ng,
+		[[maybe_unused]] T&& a_ae) noexcept
 	{
-#ifndef ENABLE_FALLOUT_NG
-		return a_f4AndVR;
-#elif !defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR)
+#if !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_AE)
+		return a_ogAndVR;
+#elif !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_AE)
 		return a_ng;
+#elif !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_NG)
+		return a_ae;
 #else
-		return Module::IsNG() ? a_ng : a_f4AndVR;
+		switch (Module::get().GetRuntime()) {
+		case Module::Runtime::NG:
+			return a_ng;
+		case Module::Runtime::AE:
+			return a_ae;
+		default:
+			return a_ogAndVR;
+		}
 #endif
 	}
 
@@ -483,6 +495,7 @@ namespace REL
      * @tparam T the type of value to return.
      * @param a_f4 the value to use for F4.
      * @param a_ng the value to use for NG.
+     * @param a_ae the value to use for AE.
      * @param a_vr the value to use for VR.
      * @return Either <code>a_f4</code> if the current runtime is F4, or <code>a_vr</code> if the runtime is VR
      */
@@ -490,20 +503,25 @@ namespace REL
 	[[nodiscard]] FALLOUT_REL T Relocate(
 		[[maybe_unused]] T a_f4,
 		[[maybe_unused]] T a_ng,
+		[[maybe_unused]] T a_ae,
 		[[maybe_unused]] T a_vr) noexcept
 	{
-#if !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)
+#if defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_AE)
 		return a_f4;
-#elif !defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR)
+#elif defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_AE)
 		return a_ng;
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
+#elif defined(ENABLE_FALLOUT_VR) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_AE)
 		return a_vr;
+#elif defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)
+		return a_ae;
 #else
 		switch (Module::get().GetRuntime()) {
 		case Module::Runtime::NG:
 			return a_ng;
 		case Module::Runtime::VR:
 			return a_vr;
+		case Module::Runtime::AE:
+			return a_ae;
 		default:
 			return a_f4;
 		}
@@ -578,9 +596,9 @@ namespace REL
 	 *
 	 * @tparam Fn the type of the function being called.
 	 * @tparam Args the types of the arguments being passed.
-	 * @param a_f4AndNGVtableOffset the offset from the <code>this</code> pointer to the vtable with the virtual function in SE/AE.
+	 * @param a_f4_NG_AEVtableOffset the offset from the <code>this</code> pointer to the vtable with the virtual function in SE/AE.
 	 * @param a_vrVtableIndex the offset from the <code>this</code> pointer to the vtable with the virtual function in VR.
-	 * @param a_f4AndNGVtableIndex the index of the function in the class' vtable in F4 and NG.
+	 * @param a_f4_NG_AEVtableIndex the index of the function in the class' vtable in F4 and NG.
 	 * @param a_vrVtableIndex the index of the function in the class' vtable in VR.
 	 * @param a_self the <code>this</code> argument for the call.
 	 * @param a_args the remaining arguments for the call, if any.
@@ -588,23 +606,23 @@ namespace REL
 	 */
 	template <class Fn, class... Args>
 	[[nodiscard]] inline typename detail::RelocateVirtualHelper<Fn>::return_type RelocateVirtual(
-		[[maybe_unused]] std::ptrdiff_t                        a_f4AndNGVtableOffset,
+		[[maybe_unused]] std::ptrdiff_t                        a_f4_NG_AEVtableOffset,
 		[[maybe_unused]] std::ptrdiff_t                        a_vrVtableOffset,
-		[[maybe_unused]] std::ptrdiff_t                        a_f4AndNGVtableIndex,
+		[[maybe_unused]] std::ptrdiff_t                        a_f4_NG_AEVtableIndex,
 		[[maybe_unused]] std::ptrdiff_t                        a_vrVtableIndex,
 		typename detail::RelocateVirtualHelper<Fn>::this_type* a_self, Args&&... a_args)
 	{
 		return (*reinterpret_cast<typename detail::RelocateVirtualHelper<Fn>::function_type**>(
 			*reinterpret_cast<const uintptr_t*>(reinterpret_cast<uintptr_t>(a_self) +
 #ifndef ENABLE_FALLOUT_VR
-												a_f4AndNGVtableOffset) +
-			a_f4AndNGVtableIndex
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
+												a_f4_NG_AEVtableOffset) +
+			a_f4_NG_AEVtableIndex
+#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG)
 												a_vrVtableOffset) +
 			a_vrVtableIndex
 #else
-												(Module::IsVR() ? a_vrVtableOffset : a_f4AndNGVtableOffset)) +
-			(Module::IsVR() ? a_vrVtableIndex : a_f4AndNGVtableIndex)
+												(Module::IsVR() ? a_vrVtableOffset : a_f4_NG_AEVtableOffset)) +
+			(Module::IsVR() ? a_vrVtableIndex : a_f4_NG_AEVtableIndex)
 #endif
 				* sizeof(uintptr_t)))(a_self, std::forward<Args>(a_args)...);
 	}
@@ -626,7 +644,7 @@ namespace REL
 	 *
 	 * @tparam Fn the type of the function being called.
 	 * @tparam Args the types of the arguments being passed.
-	 * @param a_f4AndNGVtableIndex the index of the function in the class' vtable in F4 and NG.
+	 * @param a_f4_NG_AEVtableIndex the index of the function in the class' vtable in F4 and NG.
 	 * @param a_vrVtableIndex the index of the function in the class' vtable in VR.
 	 * @param a_self the <code>this</code> argument for the call.
 	 * @param a_args the remaining arguments for the call, if any.
@@ -634,11 +652,11 @@ namespace REL
 	 */
 	template <class Fn, class... Args>
 	[[nodiscard]] inline typename detail::RelocateVirtualHelper<Fn>::return_type RelocateVirtual(
-		std::ptrdiff_t                                         a_f4AndNGVtableIndex,
+		std::ptrdiff_t                                         a_f4_NG_AEVtableIndex,
 		std::ptrdiff_t                                         a_vrVtableIndex,
 		typename detail::RelocateVirtualHelper<Fn>::this_type* a_self, Args&&... a_args)
 	{
-		return RelocateVirtual<Fn, Args...>(0, 0, a_f4AndNGVtableIndex, a_vrVtableIndex, a_self, std::forward<Args>(a_args)...);
+		return RelocateVirtual<Fn, Args...>(0, 0, a_f4_NG_AEVtableIndex, a_vrVtableIndex, a_self, std::forward<Args>(a_args)...);
 	}
 
 	/**
@@ -654,14 +672,14 @@ namespace REL
 	 * @tparam T the type of the member being accessed.
 	 * @tparam This the type of the target object that has the member.
 	 * @param a_self the target object that has the member.
-	 * @param a_f4AndNG the memory offset of the member in Fallout F4 and NG.
+	 * @param a_f4_NG_AE the memory offset of the member in Fallout F4, NG, AE.
 	 * @param a_vr the memory offset of the member in Fallout VR.
 	 * @return A reference to the member.
 	 */
 	template <class T, class This>
-	[[nodiscard]] inline T& RelocateMember(This* a_self, std::ptrdiff_t a_f4AndNG, std::ptrdiff_t a_vr)
+	[[nodiscard]] inline T& RelocateMember(This* a_self, std::ptrdiff_t a_f4_NG_AE, std::ptrdiff_t a_vr)
 	{
-		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) + Relocate(a_f4AndNG, a_f4AndNG, a_vr));
+		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) + Relocate(a_f4_NG_AE, a_f4_NG_AE, a_vr));
 	}
 
 	template <class T, class This>

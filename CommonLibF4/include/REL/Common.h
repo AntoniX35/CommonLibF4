@@ -1,13 +1,13 @@
 #pragma once
 
-#if defined(ENABLE_FALLOUT_VR) && (defined(ENABLE_FALLOUT_NG) || defined(ENABLE_FALLOUT_F4))
+#if defined(ENABLE_FALLOUT_VR) && (defined(ENABLE_FALLOUT_AE) || defined(ENABLE_FALLOUT_NG) || defined(ENABLE_FALLOUT_OG))
 /**
  * Defined to indicate that this build supports both VR and non-VR runtimes.
  */
 #	define FALLOUT_CROSS_VR
 #endif
 
-#if !defined(ENABLE_FALLOUT_NG) || (!defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR))
+#if (!defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_NG)) || (!defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_VR))
 /**
  * A macro which defines a modifier for expressions that vary by FALLOUT Address Library IDs.
  *
@@ -27,7 +27,7 @@
 #	define FALLOUT_ADDR inline
 #endif
 
-#if (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)) || (!defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR)) || (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4))
+#if (!defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)) || (!defined(ENABLE_FALLOUT_OG) && !defined(ENABLE_FALLOUT_VR)) || (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_OG))
 /**
  * A macro which defines a modifier for expressions that vary by the specific FALLOUT runtime.
  *

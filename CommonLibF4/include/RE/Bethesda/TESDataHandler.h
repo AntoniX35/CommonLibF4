@@ -103,24 +103,6 @@ namespace RE
 						TESDataHandler::VRcompiledFileCollection = const_cast<RE::TESFileCollection*>(GetCompiledFileCollection());
 					}
 				}
-				// Construct compiledFileCollection for non-falloutvresl envirnment
-				else if (*singleton) {
-					static RE::TESFileCollection vrCompiledFileCollection;
-					vrCompiledFileCollection.files.clear();
-					vrCompiledFileCollection.smallFiles.clear();
-					for (auto& file : (*singleton)->files) {
-						if (!file)
-							continue;
-						if (0xFF == file->compileIndex)  // is inactive file
-							continue;
-
-						if (file->IsLight())
-							vrCompiledFileCollection.smallFiles.push_back(file);
-						else
-							vrCompiledFileCollection.files.push_back(file);
-					}
-					VRcompiledFileCollection = &vrCompiledFileCollection;
-				}
 			}
 			return *singleton;
 		}
@@ -324,7 +306,7 @@ namespace RE
 			return REL::RelocateMember<RUNTIME_DATA>(this, 0x0FF0, 0x0FF0);
 		}
 
-		[[nodiscard]] inline const RUNTIME_DATA& GetRuntimeData() const noexcept
+		[[nodiscard]] inline const RUNTIME_DATA GetRuntimeData() const noexcept
 		{
 			return REL::RelocateMember<RUNTIME_DATA>(this, 0x0FF0, 0x0FF0);
 		}
@@ -386,7 +368,7 @@ namespace RE
 		TESFileCollection compiledFileCollection;  // 0FC0
 		RUNTIME_DATA_CONTENT
 		TESRegionDataManager* regionDataManager;  // 1018, VR 17E8
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
+#elif !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG)
 		VR_MOD_DATA_CONTENT
 		RUNTIME_DATA_CONTENT
 		TESRegionDataManager* regionDataManager;  // 1018, VR 17E8
@@ -396,7 +378,7 @@ namespace RE
 	static_assert(sizeof(TESDataHandler) == 0x1020);
 	static_assert(offsetof(TESDataHandler, regionDataManager) == 0x1018);
 	static_assert(offsetof(TESDataHandler, compiledFileCollection) == 0xFC0);
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
+#elif !defined(ENABLE_FALLOUT_AE) && !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_OG)
 	static_assert(sizeof(TESDataHandler) == 0x17F0);
 	static_assert(offsetof(TESDataHandler, regionDataManager) == 0x17E8);
 	static_assert(offsetof(TESDataHandler, loadedModCount) == 0xFC0);

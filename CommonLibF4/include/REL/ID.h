@@ -36,30 +36,47 @@ namespace REL
 		constexpr RelocationID() noexcept = default;
 
 		explicit constexpr RelocationID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
+			[[maybe_unused]] std::uint64_t a_ogID,
 			[[maybe_unused]] std::uint64_t a_ngID) noexcept
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
+#ifdef ENABLE_FALLOUT_OG
+			_ogID = a_ogID;
 #endif
 #ifdef ENABLE_FALLOUT_NG
 			_ngID = a_ngID;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-			_vrID = a_f4ID;
 #endif
 		}
 
 		explicit constexpr RelocationID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
+			[[maybe_unused]] std::uint64_t a_ogID,
 			[[maybe_unused]] std::uint64_t a_ngID,
-			[[maybe_unused]] std::uint64_t a_vrID) noexcept
+			[[maybe_unused]] std::uint64_t a_aeID) noexcept
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
+#ifdef ENABLE_FALLOUT_OG
+			_ogID = a_ogID;
 #endif
 #ifdef ENABLE_FALLOUT_NG
 			_ngID = a_ngID;
+#endif
+#ifdef ENABLE_FALLOUT_AE
+			_aeID = a_aeID;
+#endif
+		}
+
+		explicit constexpr RelocationID(
+			[[maybe_unused]] std::uint64_t a_ogID,
+			[[maybe_unused]] std::uint64_t a_ngID,
+			[[maybe_unused]] std::uint64_t a_aeID,
+			[[maybe_unused]] std::uint64_t a_vrID) noexcept
+		{
+#ifdef ENABLE_FALLOUT_OG
+			_ogID = a_ogID;
+#endif
+#ifdef ENABLE_FALLOUT_NG
+			_ngID = a_ngID;
+#endif
+#ifdef ENABLE_FALLOUT_AE
+			_aeID = a_aeID;
 #endif
 #ifdef ENABLE_FALLOUT_VR
 			_vrID = a_vrID;
@@ -81,13 +98,17 @@ namespace REL
 		[[nodiscard]] FALLOUT_REL std::uint64_t id() const noexcept
 		{
 			switch (Module::GetRuntime()) {
+#ifdef ENABLE_FALLOUT_OG
+			case Module::Runtime::OG:
+				return _ogID;
+#endif
 #ifdef ENABLE_FALLOUT_NG
 			case Module::Runtime::NG:
 				return _ngID;
 #endif
-#ifdef ENABLE_FALLOUT_F4
-			case Module::Runtime::F4:
-				return _f4ID;
+#ifdef ENABLE_FALLOUT_AE
+			case Module::Runtime::AE:
+				return _aeID;
 #endif
 #ifdef ENABLE_FALLOUT_VR
 			case Module::Runtime::VR:
@@ -106,11 +127,14 @@ namespace REL
 	private:
 		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
 
-#ifdef ENABLE_FALLOUT_F4
-		std::uint64_t _f4ID{ 0 };
+#ifdef ENABLE_FALLOUT_OG
+		std::uint64_t _ogID{ 0 };
 #endif
 #ifdef ENABLE_FALLOUT_NG
 		std::uint64_t _ngID{ 0 };
+#endif
+#ifdef ENABLE_FALLOUT_AE
+		std::uint64_t _aeID{ 0 };
 #endif
 #ifdef ENABLE_FALLOUT_VR
 		std::uint64_t _vrID{ 0 };
@@ -123,15 +147,19 @@ namespace REL
 		constexpr VariantID() noexcept = default;
 
 		explicit constexpr VariantID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
+			[[maybe_unused]] std::uint64_t a_ogID,
 			[[maybe_unused]] std::uint64_t a_ngID,
+			[[maybe_unused]] std::uint64_t a_aeID,
 			[[maybe_unused]] std::uint64_t a_vrOffset) noexcept
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
+#ifdef ENABLE_FALLOUT_OG
+			_ogID = a_ogID;
 #endif
 #ifdef ENABLE_FALLOUT_NG
 			_ngID = a_ngID;
+#endif
+#ifdef ENABLE_FALLOUT_AE
+			_aeID = a_aeID;
 #endif
 #ifdef ENABLE_FALLOUT_VR
 			_vrOffset = a_vrOffset;
@@ -147,13 +175,17 @@ namespace REL
 		[[nodiscard]] std::size_t offset() const
 		{
 			switch (Module::GetRuntime()) {
+#ifdef ENABLE_FALLOUT_OG
+			case Module::Runtime::OG:
+				return _ogID ? IDDB::get().id2offset(_ogID) : 0;
+#endif
 #ifdef ENABLE_FALLOUT_NG
 			case Module::Runtime::NG:
 				return _ngID ? IDDB::get().id2offset(_ngID) : 0;
 #endif
-#ifdef ENABLE_FALLOUT_F4
-			case Module::Runtime::F4:
-				return _f4ID ? IDDB::get().id2offset(_f4ID) : 0;
+#ifdef ENABLE_FALLOUT_AE
+			case Module::Runtime::AE:
+				return _aeID ? IDDB::get().id2offset(_aeID) : 0;
 #endif
 #ifdef ENABLE_FALLOUT_VR
 			case Module::Runtime::VR:
@@ -167,11 +199,14 @@ namespace REL
 	private:
 		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
 
-#ifdef ENABLE_FALLOUT_F4
-		std::uint64_t _f4ID{ 0 };
+#ifdef ENABLE_FALLOUT_OG
+		std::uint64_t _ogID{ 0 };
 #endif
 #ifdef ENABLE_FALLOUT_NG
 		std::uint64_t _ngID{ 0 };
+#endif
+#ifdef ENABLE_FALLOUT_AE
+		std::uint64_t _aeID{ 0 };
 #endif
 #ifdef ENABLE_FALLOUT_VR
 		std::uint64_t _vrOffset{ 0 };

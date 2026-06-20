@@ -1,18 +1,20 @@
 cmake_minimum_required(VERSION 3.21)
 
 option(F4SE_SUPPORT_XBYAK "Enables trampoline support for Xbyak." OFF)
-option(ENABLE_FALLOUT_F4 "Enable support for Fallout 4 in the dynamic runtime feature." ON)
+option(ENABLE_FALLOUT_OG "Enable support for Fallout 4 in the dynamic runtime feature." ON)
 option(ENABLE_FALLOUT_NG "Enable support for Nextgen Update Fallout 4 in the dynamic runtime feature." ON)
+option(ENABLE_FALLOUT_AE "Enable support for Anniversary Edition Fallout 4 in the dynamic runtime feature." ON)
 option(ENABLE_FALLOUT_VR "Enable support for Fallout 4 VR in the dynamic runtime feature." ON)
 option(BUILD_TESTS "Enable building of the unit tests." OFF)
 message("Options:")
 message("\tEnable Xbyak: ${F4SE_SUPPORT_XBYAK}")
-message("\tEnable Fallout 4: ${ENABLE_FALLOUT_F4}")
+message("\tEnable Fallout 4: ${ENABLE_FALLOUT_OG}")
 message("\tEnable Nextgen Fallout 4: ${ENABLE_FALLOUT_NG}")
+message("\tEnable Anniversary Fallout 4: ${ENABLE_FALLOUT_AE}")
 message("\tEnable Fallout 4 VR: ${ENABLE_FALLOUT_VR}")
 message("\tBuild Tests: ${BUILD_TESTS}")
 
-if(NOT ENABLE_FALLOUT_F4 AND NOT ENABLE_FALLOUT_NG AND NOT ENABLE_FALLOUT_VR)
+if(NOT ENABLE_FALLOUT_OG AND NOT ENABLE_FALLOUT_AE AND NOT ENABLE_FALLOUT_NG AND NOT ENABLE_FALLOUT_VR)
 	message(FATAL_ERROR "At least one Fallout runtime must be supported by the COMMONLIBF4 build.")
 endif()
 
@@ -64,8 +66,9 @@ target_compile_definitions(
 	WINVER=0x0601 # windows 7, minimum supported version by fallout 4
 	_WIN32_WINNT=0x0601
 	"$<$<BOOL:${F4SE_SUPPORT_XBYAK}>:F4SE_SUPPORT_XBYAK=1>"
-	"$<$<BOOL:${ENABLE_FALLOUT_F4}>:ENABLE_FALLOUT_F4=1>"
+	"$<$<BOOL:${ENABLE_FALLOUT_OG}>:ENABLE_FALLOUT_OG=1>"
 	"$<$<BOOL:${ENABLE_FALLOUT_NG}>:ENABLE_FALLOUT_NG=1>"
+	"$<$<BOOL:${ENABLE_FALLOUT_AE}>:ENABLE_FALLOUT_AE=1>"
 	"$<$<BOOL:${ENABLE_FALLOUT_VR}>:ENABLE_FALLOUT_VR=1>"
 )
 

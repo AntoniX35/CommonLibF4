@@ -9,13 +9,19 @@ end)
 option("fallout_f4")
     set_default(true)
     set_description("Enable runtime support for Fallout 4")
-    add_defines("ENABLE_FALLOUT_F4=1")
+    add_defines("ENABLE_FALLOUT_OG=1")
 option_end()
 
 option("fallout_f4ng")
     set_default(true)
     set_description("Enable runtime support for Fallout 4 NG")
     add_defines("ENABLE_FALLOUT_NG=1")
+option_end()
+
+option("fallout_f4ae")
+    set_default(true)
+    set_description("Enable runtime support for Fallout 4 AE")
+    add_defines("ENABLE_FALLOUT_AE=1")
 option_end()
 
 option("fallout_f4vr")
@@ -89,7 +95,7 @@ target("commonlibf4-ng", function()
         "cl::/guard:cf-",
         "cl::/Zc:preprocessor",
         "cl::/Zc:templateScope"
-    )
+    ) 
 
     -- add flags (cl: disable warnings)
     add_cxxflags(
@@ -284,7 +290,7 @@ rule("commonlibf4-ng.plugin")
 
         depend.on_changed(function()
             local srcfiles, dstfiles = target:installfiles()
-            if srcfiles and #srcfiles > 0 and dstfiles and #dstfiles > 0 then
+            if srcfiles and #srcfiles > 0 and dstfiles and #dstfiles > 0 then 
                 task.run("install")
             end
         end, { changed = target:is_rebuilt(), files = { target:targetfile() } })
