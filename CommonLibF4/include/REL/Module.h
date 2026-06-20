@@ -37,7 +37,7 @@ namespace REL
 			NG = 1 << 2,
 
 			/**
-			 * The FALLOUT runtime is Anniversary Update release (version 1.11.137 and prior).
+			 * The FALLOUT runtime is an Anniversary Edition release (version 1.11.137 and later).
 			 */
 			AE = 1 << 3,
 

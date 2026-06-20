@@ -47,26 +47,23 @@ namespace REL
 		const auto version = GetFileVersion(_filename);
 		if (version) {
 			_version = *version;
-			// First, check for explicit VR marker in minor version (e.g., 1.2.x)
-			if (_version[1] == 2) {
-				_runtime = Runtime::VR;
-				return;
-			}
 
-			// Use explicit range checks to determine runtime reliably
-			// OG releases: up to 1.10.163
-			// NG releases: 1.10.980 - 1.10.984
-			// AE releases: 1.11.0 - 1.11.137
-			// Post-AE: >= 1.11.138 treated as NG
-			Version v = _version;
-			if (v >= Version(1, 10, 980) && v <= Version(1, 10, 984)) {
-				_runtime = Runtime::NG;
-			} else if (v >= Version(1, 11, 0) && v <= Version(1, 11, 137)) {
-				_runtime = Runtime::AE;
-			} else if (v >= Version(1, 11, 138)) {
-				_runtime = Runtime::NG;
-			} else {
+			constexpr Version maxOG{ 1, 10, 163, 0 };
+			constexpr Version minNG{ 1, 10, 980, 0 };
+			constexpr Version maxNG{ 1, 10, 984, 0 };
+			constexpr Version minAE{ 1, 11, 137, 0 };
+			constexpr Version vr{ 1, 2, 72, 0 };
+
+			if (_version == vr) {
+				_runtime = Runtime::VR;
+			} else if (_version <= maxOG) {
 				_runtime = Runtime::OG;
+			} else if (_version >= minNG && _version <= maxNG) {
+				_runtime = Runtime::NG;
+			} else if (_version >= minAE) {
+				_runtime = Runtime::AE;
+			} else {
+				stl::report_and_fail(std::format("Unsupported Fallout 4 runtime: {}", _version));
 			}
 
 			return;
